@@ -20,9 +20,11 @@ class AnimationGroup<T> {
      * Removes an animation from the group under the given key
      *
      * @param key The key
+     *
+     * @return The removed animation such that there was one associated with the key in the first place
      */
-    fun remove(key: T) {
-        map.remove(key)
+    fun remove(key: T): Animation? {
+        return map.remove(key)
     }
 
     /**
@@ -73,7 +75,7 @@ class AnimationGroup<T> {
                 interpolateFunc(frac)
             }
         }
-        
+
         add(key, anim)
 
         return anim
