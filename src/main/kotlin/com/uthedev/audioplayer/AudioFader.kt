@@ -34,7 +34,7 @@ class AudioFader(initTargetVolume: Double) {
     /**
      * The current AudioCue
      */
-    private lateinit var currentSound: AudioCue
+    private var currentSound: AudioCue? = null
 
     private var targetVolume = initTargetVolume
 
@@ -79,7 +79,7 @@ class AudioFader(initTargetVolume: Double) {
      *
      * @param sound The AudioCue to switch to
      */
-    fun switch(sound: AudioCue) {
+    fun switch(sound: AudioCue?) {
         /**
          * If the new sound is being faded out, stop that tween
          */
