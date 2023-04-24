@@ -94,8 +94,10 @@ class SoundFader(initTargetVolume: Double) {
          */
         val oldSound = currentSound
         if (oldSound != null) {
+            val instId = oldSound.instanceId
+            val originalVolume = oldSound.audioCue.getVolume(instId)
             val fadeOut = fadeOutTweens.addNew(oldSound, transitionTime, fun(frac: Double) {
-                oldSound.audioCue.setVolume(oldSound.instanceId, targetVolume * (1 - frac))
+                oldSound.audioCue.setVolume(instId, originalVolume * (1 - frac))
             })
             fadeOut.setOnFinished {
                 oldSound.audioCue.stop(oldSound.instanceId)
@@ -119,6 +121,7 @@ class SoundFader(initTargetVolume: Double) {
                     sound.audioCue.setVolume(sound.instanceId, targetVolume * frac)
                 }
             }
+            fadeInTween!!.play()
         }
     }
 
