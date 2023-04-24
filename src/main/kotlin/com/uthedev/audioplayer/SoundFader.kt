@@ -17,6 +17,23 @@ import javafx.util.Duration
  * @param initTargetVolume The initial target volume of the SoundFader
  */
 class SoundFader(initTargetVolume: Double) {
+    companion object {
+        /**
+         * Inverse function of LERP (linear interpolation)
+         *
+         * @param start The starting value
+         * @param end The ending value
+         * @param x The value to gauge the alpha time from
+         */
+        fun inverseLerp(start: Double, end: Double, x: Double): Double {
+            return (x - start) / (end - start)
+        }
+
+        fun lerp(start: Double, end: Double, time: Double): Double {
+            return start + (end - start) * time
+        }
+    }
+
     /**
      * The list of tweens (transitions) that are currently reducing the volume of corresponding Sounds to 0.
      *
@@ -97,11 +114,21 @@ class SoundFader(initTargetVolume: Double) {
             val instId = oldSound.instanceId
             val originalVolume = oldSound.audioCue.getVolume(instId)
             val fadeOut = fadeOutTweens.addNew(oldSound, transitionTime, fun(frac: Double) {
-                oldSound.audioCue.setVolume(instId, originalVolume * (1 - frac))
+                oldSound.audioCue.setVolume(instId, targetVolume * (1 - frac))
             })
             fadeOut.setOnFinished {
                 oldSound.audioCue.stop(oldSound.instanceId)
             }
+
+            // animation directions can change before the corresponding fade-in/fade-out can change, so account for that
+            fadeOut.jumpTo(Duration.seconds(
+                lerp(
+                    0.0,
+                    fadeOut.cycleDuration.toSeconds(),
+                    inverseLerp(0.0, targetVolume, originalVolume)
+                )
+            ))
+
             fadeOut.play()
         }
 
@@ -112,7 +139,7 @@ class SoundFader(initTargetVolume: Double) {
         onSoundChange(sound)
 
         if (sound != null) {
-            fadeInTween = object : Transition() {
+            val inTween = object : Transition() {
                 init {
                     cycleDuration = Duration.seconds(transitionTime)
                 }
@@ -121,7 +148,20 @@ class SoundFader(initTargetVolume: Double) {
                     sound.audioCue.setVolume(sound.instanceId, targetVolume * frac)
                 }
             }
-            fadeInTween!!.play()
+
+            fadeInTween = inTween
+
+            // animation directions can change before the corresponding fade-in/fade-out can change, so account for that
+            inTween.jumpTo(Duration.seconds(
+                lerp(
+                    0.0,
+                    inTween.cycleDuration.toSeconds(),
+                    inverseLerp(0.0, targetVolume, sound.audioCue.getVolume(
+                        sound.instanceId
+                    ))
+                )
+            ))
+            inTween.play()
         }
     }
 

@@ -10,6 +10,8 @@ import java.net.URL
 https://openjfx.io/javadoc/20/javafx.fxml/javafx/fxml/doc-files/introduction_to_fxml.html#overview
 */
 class SongList(): GridPane() {
+    var numColumns = 2
+
     fun update(player: AudioPlayer) {
         children.clear()
 
@@ -21,7 +23,7 @@ class SongList(): GridPane() {
                 player.play(i)
             }
 
-            add(button, row, 0)
+            add(button, row % numColumns, row)
             println("added button $row")
 
             row++
