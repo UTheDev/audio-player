@@ -17,9 +17,11 @@ class AudioPlayer {
     }
 
     fun clear() {
-        for ((i, v) in map) {
-            remove(i)
+        for ((_, v) in map) {
+            v!!.close()
         }
+
+        map.clear()
     }
 
     fun remove(path: URL) {
@@ -32,7 +34,9 @@ class AudioPlayer {
             throw IllegalArgumentException("At the moment, AudioPlayer can only play .wav files")
         }
 
-        map[path] = AudioCue.makeStereoCue(path, 1)
+        val audio = AudioCue.makeStereoCue(path, 1)
+        audio.open()
+        map[path] = audio
     }
 
     fun stop() {

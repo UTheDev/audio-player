@@ -13,12 +13,18 @@ class SongList(): GridPane() {
     fun update(player: AudioPlayer) {
         children.clear()
 
+        var row: Int = 0
         for ((i, _) in player.getMap()) {
             val button = Button(i.path)
             button.setOnMouseClicked {
-                print("switching to ${i.path}")
+                println("switching to ${i.path}")
                 player.play(i)
             }
+
+            add(button, row, 0)
+            println("added button $row")
+
+            row++
         }
     }
 
