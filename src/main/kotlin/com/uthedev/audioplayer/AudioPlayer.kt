@@ -9,24 +9,24 @@ import java.net.URL
  * Currently, playback is based on filenames
  */
 class AudioPlayer {
-    private val map = HashMap<URL, AudioCue>()
-    private val fader = AudioFader(1.0)
+    private val map = HashMap<URL, Sound>()
+    private val fader = SoundFader(1.0)
 
-    fun getMap(): HashMap<URL, AudioCue> {
+    fun getMap(): HashMap<URL, Sound> {
         return map
     }
 
     fun clear() {
         for ((_, v) in map) {
-            v!!.close()
+            v!!.audioCue.close()
         }
 
         map.clear()
     }
 
     fun remove(path: URL) {
-        val audio = map.remove(path)
-        audio!!.close()
+        val sound = map.remove(path)
+        sound!!.audioCue.close()
     }
 
     fun add(path: URL) {
@@ -36,7 +36,7 @@ class AudioPlayer {
 
         val audio = AudioCue.makeStereoCue(path, 1)
         audio.open()
-        map[path] = audio
+        map[path] = Sound(audio)
     }
 
     fun stop() {
@@ -44,18 +44,22 @@ class AudioPlayer {
     }
 
     fun play(path: URL) {
-        val audio: AudioCue? = map[path]
+        val sound: Sound? = map[path]
 
-        if (audio != null) {
+        if (sound != null) {
+            val audio = sound.audioCue
+            val instId = sound.instanceId
             /*
             * Reset cursor position if not currently playing
             */
-            if (!audio.getIsPlaying(0)) {
-                audio.setFramePosition(0, 0.0)
-                audio.play(0.0)
+            if (!audio.getIsPlaying(instId)) {
+                audio.setFramePosition(instId, 0.0)
+                audio.setVolume(instId, 0.0)
+
+                audio.start(instId)
             }
 
-            fader.switch(audio)
+            fader.switch(sound)
         }
     }
 }

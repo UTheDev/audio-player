@@ -5,7 +5,7 @@ import javafx.animation.Transition
 import javafx.util.Duration
 
 /**
- * This class is responsible for smoothly transitioning between two AudioCues
+ * This class is responsible for smoothly transitioning between two Sounds
  * by transitioning their volumes.
  *
  * This class assumes that the polyphony of both the "old" and "new" AudioCues are 1.
@@ -14,17 +14,17 @@ import javafx.util.Duration
  *
  * @author UTheDev
  *
- * @param initTargetVolume The initial target volume of the AudioFader
+ * @param initTargetVolume The initial target volume of the SoundFader
  */
-class AudioFader(initTargetVolume: Double) {
+class SoundFader(initTargetVolume: Double) {
     /**
-     * The list of tweens (transitions) that are currently reducing the volume of corresponding AudioCues to 0.
+     * The list of tweens (transitions) that are currently reducing the volume of corresponding Sounds to 0.
      *
      * This is intended to store fading in a queue in case another sound is queued for transition while a fade is in progress.
      *
      * If the fade is requested to be reversed, the sound that fades back in will be at the end of the list.
      */
-    private val fadeOutTweens = AnimationGroup<AudioCue>()
+    private val fadeOutTweens = AnimationGroup<Sound>()
 
     /**
      * The tween that's fading the current sound in
@@ -32,9 +32,9 @@ class AudioFader(initTargetVolume: Double) {
     private var fadeInTween: Transition? = null
 
     /**
-     * The current AudioCue
+     * The current Sound
      */
-    private var currentSound: AudioCue? = null
+    private var currentSound: Sound? = null
 
     private var targetVolume = initTargetVolume
 
@@ -75,11 +75,11 @@ class AudioFader(initTargetVolume: Double) {
     }
 
     /**
-     * Fades to the provided AudioCue
+     * Fades to the provided Sound
      *
-     * @param sound The AudioCue to switch to
+     * @param sound The Sound to switch to
      */
-    fun switch(sound: AudioCue?) {
+    fun switch(sound: Sound?) {
         /**
          * If the new sound is being faded out, stop that tween
          */
@@ -94,9 +94,13 @@ class AudioFader(initTargetVolume: Double) {
          */
         val oldSound = currentSound
         if (oldSound != null) {
-            fadeOutTweens.addNew(oldSound, transitionTime, fun(frac: Double) {
-                oldSound.setVolume(0, targetVolume * (1 - frac))
-            }).play()
+            val fadeOut = fadeOutTweens.addNew(oldSound, transitionTime, fun(frac: Double) {
+                oldSound.audioCue.setVolume(oldSound.instanceId, targetVolume * (1 - frac))
+            })
+            fadeOut.setOnFinished {
+                oldSound.audioCue.stop(oldSound.instanceId)
+            }
+            fadeOut.play()
         }
 
         /*
@@ -112,7 +116,7 @@ class AudioFader(initTargetVolume: Double) {
                 }
 
                 override fun interpolate(frac: Double) {
-                    sound.setVolume(0, targetVolume * frac)
+                    sound.audioCue.setVolume(sound.instanceId, targetVolume * frac)
                 }
             }
         }
@@ -129,9 +133,9 @@ class AudioFader(initTargetVolume: Double) {
     fun onFinish() {}
 
     /**
-     * Fires when the primary AudioCue instance has changed.
+     * Fires when the primary Sound instance has changed.
      *
-     * @param newSound The new primary AudioCue instance
+     * @param newSound The new primary Sound instance
      */
-    fun onSoundChange(newSound: AudioCue?) {}
+    fun onSoundChange(newSound: Sound?) {}
 }
