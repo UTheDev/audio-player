@@ -16,6 +16,7 @@ class SongList(): GridPane() {
         children.clear()
 
         var row: Int = 0
+        var col: Int = 0
         for ((i, _) in player.getMap()) {
             val button = Button(i.path)
             button.setOnMouseClicked {
@@ -23,15 +24,16 @@ class SongList(): GridPane() {
                 player.play(i)
             }
 
-            add(button, row % numColumns, row)
+            add(button, col, row)
             println("added button $row")
 
-            row++
+            col++
+
+            // remember that column and row indexes start at 0
+            if (col >= numColumns) {
+                col = 0
+                row++
+            }
         }
-    }
-
-    init {
-
-
     }
 }

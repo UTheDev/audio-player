@@ -1,6 +1,7 @@
 package com.uthedev.audioplayer
 
 import com.adonax.audiocue.AudioCue
+import javafx.animation.Animation
 import javafx.animation.Transition
 import javafx.util.Duration
 
@@ -117,7 +118,10 @@ class SoundFader(initTargetVolume: Double) {
                 oldSound.audioCue.setVolume(instId, targetVolume * (1 - frac))
             })
             fadeOut.setOnFinished {
-                oldSound.audioCue.stop(oldSound.instanceId)
+                // make sure that the animation actually finished before stopping
+                if (fadeOut.currentTime.toSeconds() >= fadeOut.cycleDuration.toSeconds()) {
+                    oldSound.audioCue.stop(oldSound.instanceId)
+                }
             }
 
             // animation directions can change before the corresponding fade-in/fade-out can change, so account for that
