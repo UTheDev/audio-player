@@ -2,7 +2,7 @@
 Utility class for fading from one sound to another.
 The fade can be cancelled.
 
-This version has the commented code removed so it can be used as a reference (for the Kotlin AudioFader class I'm making)
+This version has the commented code removed so it can be used as a reference (for the Kotlin SoundFader class I'm making)
 
 By udev (@UTheDev)
 ]]--
