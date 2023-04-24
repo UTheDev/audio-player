@@ -12,6 +12,10 @@ class AudioPlayer {
     private val map = HashMap<URL, AudioCue>()
     private val fader = AudioFader(1.0)
 
+    fun getMap(): HashMap<URL, AudioCue> {
+        return map
+    }
+
     fun clear() {
         for ((i, v) in map) {
             remove(i)
