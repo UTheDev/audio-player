@@ -129,7 +129,7 @@ class SoundFader(initTargetVolume: Double) {
                 lerp(
                     0.0,
                     fadeOut.cycleDuration.toSeconds(),
-                    inverseLerp(0.0, targetVolume, originalVolume)
+                    inverseLerp(targetVolume, 0.0, originalVolume)
                 )
             ))
 

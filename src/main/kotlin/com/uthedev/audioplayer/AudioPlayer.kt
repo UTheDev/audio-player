@@ -36,7 +36,9 @@ class AudioPlayer {
 
         val audio = AudioCue.makeStereoCue(path, 1)
         audio.open()
-        map[path] = Sound(audio)
+        val sound = Sound(audio)
+        sound.audioCue.setLooping(sound.instanceId, -1)
+        map[path] = sound
     }
 
     fun stop() {
